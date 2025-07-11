@@ -11,11 +11,11 @@ import (
 )
 
 var (
-	responseMap  = make(map[ResponseKey]chan bool)
+	responseMap  = make(map[SYNResponseKey]chan bool)
 	responseLock sync.Mutex
 )
 
-type ResponseKey struct {
+type SYNResponseKey struct {
 	DstIP   string
 	DstPort uint16
 	SrcPort uint16
@@ -63,7 +63,7 @@ func (s *synScanner) Connect(id int, ip string, port int) error {
 	//fmt.Printf("addr.Addr = %v\n", addr.Addr) // [4]byte 类型
 	//fmt.Printf("addr.Addr as IP = %v\n", net.IP(addr.Addr[:]).String())
 
-	key := ResponseKey{
+	key := SYNResponseKey{
 		DstIP:   dstIP.String(),
 		DstPort: uint16(port),
 		SrcPort: uint16(srcPort),
@@ -99,7 +99,7 @@ func (s *synScanner) Connect(id int, ip string, port int) error {
 	return nil
 }
 
-func StartGlobalListener() {
+func StartSynListener() {
 	recvFD, err := syscall.Socket(syscall.AF_INET, syscall.SOCK_RAW, syscall.IPPROTO_TCP)
 	if err != nil {
 		panic("Global listener failed to create socket")
@@ -121,7 +121,7 @@ func StartGlobalListener() {
 
 			dstIP := fmt.Sprintf("%d.%d.%d.%d", buf[12], buf[13], buf[14], buf[15])
 
-			key := ResponseKey{
+			key := SYNResponseKey{
 				DstIP:   dstIP,
 				DstPort: dstPort,
 				SrcPort: srcPort,

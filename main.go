@@ -27,8 +27,12 @@ func main() {
 			scanImpl = scanner.NewFullConnectScanner()
 			scanner.AssigningTasks(task, scanImpl)
 		case "syn":
-			scanner.StartGlobalListener()
+			scanner.StartSynListener()
 			scanImpl = scanner.NewsynScanner()
+			scanner.AssigningTasks(task, scanImpl)
+		case "udp":
+			scanner.StartICMPListener()
+			scanImpl = scanner.NewUDPScanner()
 			scanner.AssigningTasks(task, scanImpl)
 		default:
 			fmt.Println("未知扫描模式:", mode)
@@ -38,7 +42,7 @@ func main() {
 		return
 	} else {
 		fmt.Printf("Usage: %v <iplist> <portlist> <mode>\n", os.Args[0])
-		fmt.Println("mode: full (full connect scan) or syn (syn scan, not implemented yet)")
+		fmt.Println("mode: full (full connect scan), syn (syn scan), or udp (udp scan)")
 		return
 	}
 
