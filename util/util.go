@@ -19,10 +19,10 @@ func GetIpList(ips string) ([]net.IP, error) {
 	return list, err
 }
 
-func GetPorts(selection string) ([]int, error) {
+func GetPorts(selection string) ([]int, error, int) {
 	ports := []int{}
 	if selection == "" {
-		return ports, nil
+		return ports, nil, 0
 	}
 	ranges := strings.Split(selection, ",")
 	for _, r := range ranges {
@@ -31,21 +31,21 @@ func GetPorts(selection string) ([]int, error) {
 			parts := strings.Split(r, "-")
 
 			if len(parts) != 2 {
-				return nil, fmt.Errorf("invalid port selection segment: '%s'", r)
+				return nil, fmt.Errorf("invalid port selection segment: '%s'", r), 0
 			}
 
 			p1, err := strconv.Atoi(parts[0])
 			if err != nil {
-				return nil, fmt.Errorf("invalid port number :'%s'", parts[0])
+				return nil, fmt.Errorf("invalid port number :'%s'", parts[0]), 0
 			}
 
 			p2, err := strconv.Atoi(parts[1])
 			if err != nil {
-				return nil, fmt.Errorf("invalid port number :'%s'", parts[1])
+				return nil, fmt.Errorf("invalid port number :'%s'", parts[1]), 0
 			}
 
 			if p1 > p2 {
-				return nil, fmt.Errorf("invalid port range:%d-%d", p1, p2)
+				return nil, fmt.Errorf("invalid port range:%d-%d", p1, p2), 0
 			}
 
 			for i := p1; i <= p2; i++ {
@@ -54,14 +54,16 @@ func GetPorts(selection string) ([]int, error) {
 
 		} else {
 			if port, err := strconv.Atoi(r); err != nil {
-				return nil, fmt.Errorf("nvalid port number :'%s'", r)
+				return nil, fmt.Errorf("nvalid port number :'%s'", r), 0
 			} else {
 				ports = append(ports, port)
 			}
 		}
 
 	}
-	return ports, nil
+	portCount := len(ports)
+	return ports, nil, portCount
+
 }
 
 func GenerateTask(ipList []net.IP, ports []int) ([]map[string]int, int) {
