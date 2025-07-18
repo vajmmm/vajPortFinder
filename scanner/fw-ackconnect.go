@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"net"
 	"portfinder/util"
+	"portfinder/vars"
 	"sync"
+	"sync/atomic"
 	"syscall"
 	"time"
 )
@@ -21,7 +23,8 @@ var (
 	ackResponseLock sync.Mutex
 )
 
-type ackScanner struct{}
+type ackScanner struct {
+}
 
 func NewACKScanner() *ackScanner {
 	return &ackScanner{}
@@ -68,7 +71,7 @@ func (s *ackScanner) Connect(id int, ip string, port int) error {
 	if err := syscall.Sendto(fd, packet, 0, &addr); err != nil {
 		return fmt.Errorf("sendto failed: %v", err)
 	}
-
+	atomic.AddInt64(&vars.SendCounter, 1)
 	select {
 	case received := <-ch:
 		if received {
