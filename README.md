@@ -49,6 +49,7 @@ sudo ./portfinder <目标IP> [端口列表] <扫描模式>
 | `fin-advanced` | 高级FIN扫描 | 增强的FIN扫描模式 |
 | `ack` | ACK扫描 | 防火墙规则检测 |
 | `os` | OS指纹识别 | 操作系统类型探测 |
+| `openclaw` | 综合扫描 | SYN端口扫描 + OS指纹识别一体化 |
 
 ### 📝 使用示例
 
@@ -74,3 +75,13 @@ sudo ./portfinder 192.168.1.1 1-65535 ack
 ```bash
 # 单个IP的OS探测
 sudo ./portfinder 192.168.1.1 os
+```
+
+#### OpenClaw 综合扫描
+```bash
+# 综合扫描：同时进行SYN端口扫描和OS指纹识别
+sudo ./portfinder 192.168.1.1 80,443,22,21,25 openclaw
+
+# 对网络段进行综合扫描
+sudo ./portfinder 192.168.1.0/24 80,443,22 openclaw
+```

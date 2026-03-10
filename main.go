@@ -10,6 +10,9 @@ import (
 	"runtime"
 )
 
+// nmapOSDB is the path to the nmap OS fingerprint database.
+const nmapOSDB = "util/nmap-os-db.txt"
+
 func main() {
 	// 检查参数数量，支持不同的使用模式
 	if len(os.Args) >= 3 {
@@ -86,6 +89,16 @@ func main() {
 				fmt.Println("All the %d ports is unfiltered!!!", totalPorts)
 			}
 			return
+		case "openclaw":
+			// 综合扫描模式：SYN端口扫描 + OS指纹识别
+			fmt.Println("=== Starting OpenClaw Comprehensive Scan ===")
+			ipStrs := make([]string, 0, len(ips))
+			for _, ip := range ips {
+				ipStrs = append(ipStrs, ip.String())
+			}
+			results := scanner.OpenclawScan(ipStrs, ports, nmapOSDB)
+			scanner.PrintOpenclawResults(results)
+			return
 		case "os":
 			// 纯OS探测模式
 			fmt.Println("=== Starting Comprehensive OS Detection ===")
@@ -122,7 +135,7 @@ func main() {
 
 				// 执行OS探测
 				osScanner := scanner.NewOSScanner(ipStr, openPort, closedPort)
-				err := osScanner.LoadNmapOSDB("util/nmap-os-db.txt")
+				err := osScanner.LoadNmapOSDB(nmapOSDB)
 				if err != nil {
 					fmt.Printf("[-] Failed to load OS database: %v\n", err)
 					continue
@@ -163,11 +176,13 @@ func printUsage() {
 	fmt.Println("  fin          - FIN scan (requires portlist)")
 	fmt.Println("  fin-advanced - Advanced FIN scan (requires portlist)")
 	fmt.Println("  ack          - ACK scan (requires portlist)")
+	fmt.Println("  openclaw     - Comprehensive scan: SYN port scan + OS detection")
 	fmt.Println("  os           - Comprehensive OS detection (portlist optional)")
 	fmt.Println("\nExamples:")
 	fmt.Println("  ./portfinder 192.168.1.1 80,443,22 syn")
 	fmt.Println("  ./portfinder 192.168.1.0/24 1-1000 full")
 	fmt.Println("  ./portfinder 192.168.1.1 os")
+	fmt.Println("  ./portfinder 192.168.1.1 80,443,22 openclaw")
 }
 
 func init() {
